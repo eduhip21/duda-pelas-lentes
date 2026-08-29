@@ -33,8 +33,14 @@ export default function Hero({ hero }) {
 
       <div className="container hero__inner">
         <h1 className="hero__title">
-          <span>{h.titulo}</span>
-          <span>{h.tituloDestaque}</span>
+          <img
+            className="hero__logo"
+            src="/images/branding/logo_duda.png"
+            alt="Duda Pelas Lentes"
+            width="1227"
+            height="431"
+          />
+          <span className="hero__logo-caption">Fotografia</span>
         </h1>
 
         <p className="hero__subtitle">

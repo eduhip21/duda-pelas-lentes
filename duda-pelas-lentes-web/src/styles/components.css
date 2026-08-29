@@ -129,9 +129,26 @@
   flex-shrink: 0;
 }
 
+.logo--image {
+  /* imagem única — sem coluna */
+  display: inline-flex;
+  align-items: center;
+}
+
 .logo--image img {
-  max-height: 46px;
+  display: block;
+
+  /* Harmoniosa com o header (84px) sem aumentá-lo; encolhe em telas menores. */
+  height: clamp(38px, 5.4vw, 52px);
   width: auto;
+
+  max-width: min(58vw, 260px);
+  object-fit: contain;
+}
+
+/* Sobre o hero (header transparente): leve separação para garantir contraste. */
+.site-header.is-transparent .logo--image img {
+  filter: drop-shadow(0 1px 6px rgba(20, 14, 8, 0.55));
 }
 
 .logo__script {

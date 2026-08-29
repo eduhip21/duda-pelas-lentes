@@ -33,16 +33,29 @@
   padding-top: var(--header-height);
 }
 .hero__title {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  color: var(--color-text-invert);
-  line-height: 0.98;
-  letter-spacing: 0.04em;
-  font-size: clamp(3rem, 9vw, 6.6rem);
-  text-transform: uppercase;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
 }
-.hero__title span {
+/* Marca principal: presença parecida com o antigo título, porém mais refinada.
+   Proporção preservada (width:auto), object-fit:contain, sem overflow horizontal. */
+.hero__logo {
   display: block;
+  width: clamp(15rem, 46vw, 37rem);
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.hero__logo-caption {
+  padding-left: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: clamp(0.62rem, 1.1vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(244, 237, 226, 0.82);
 }
 .hero__subtitle {
   margin-top: 1.8rem;
@@ -371,6 +384,12 @@
   }
   .hero__media {
     background-position: center;
+  }
+  .hero__logo {
+    width: min(78vw, 20rem);
+  }
+  .hero__logo-caption {
+    letter-spacing: 0.38em;
   }
   .hero__actions .btn {
     flex: 1 1 100%;

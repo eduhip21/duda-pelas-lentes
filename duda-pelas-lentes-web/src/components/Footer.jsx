@@ -39,7 +39,7 @@ export default function Footer({ servicos = [] }) {
     <footer className="site-footer">
       <div className="container site-footer__grid">
         <div className="site-footer__brand">
-          <Logo tone="light" />
+          <Logo variant="type" tone="light" />
           <p>{config.textoRodape}</p>
         </div>
 

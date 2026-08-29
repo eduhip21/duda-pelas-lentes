@@ -33,7 +33,9 @@ beforeEach(() => {
 describe('Home', () => {
   it('renderiza o hero e as seções principais com dados da API', async () => {
     renderApp(<Home />)
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(/DUDA/)
+    // o título do hero agora é a logo (imagem) — nome acessível vem do alt
+    expect(await screen.findByRole('heading', { level: 1, name: /duda pelas lentes/i })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Duda Pelas Lentes' })).toBeInTheDocument()
     await waitFor(() => expect(screen.getByText('Famílias')).toBeInTheDocument())
     expect(screen.getByText(/Palavras de quem viveu/i)).toBeInTheDocument()
     expect(screen.getByText(/Me acompanhe no Instagram/i)).toBeInTheDocument()
@@ -42,7 +44,7 @@ describe('Home', () => {
   it('mostra conteúdo padrão mesmo sem resposta da API', async () => {
     vi.stubGlobal('fetch', mockFetch({}))
     renderApp(<Home />)
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(/DUDA/)
+    expect(await screen.findByRole('heading', { level: 1, name: /duda pelas lentes/i })).toBeInTheDocument()
   })
 })
 

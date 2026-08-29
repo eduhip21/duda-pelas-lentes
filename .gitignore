@@ -5,6 +5,29 @@
 
 # dotenv files
 .env
+.env.local
+.env.*.local
+!.env.example
+
+# Duda Pelas Lentes — arquivos que NUNCA devem ser versionados
+storage/uploads/
+**/storage/uploads/
+DudaPelasLentes.Api/storage/
+secrets.json
+*.secrets.json
+*.pem
+*.key
+
+# Bancos locais / dumps
+*.sql.bak
+*.dump
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.vite/
 
 # User-specific files
 *.rsuser

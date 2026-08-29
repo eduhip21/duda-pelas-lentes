@@ -1,6 +1,21 @@
 @DudaPelasLentes.Api_HostAddress = http://localhost:5073
 
-GET {{DudaPelasLentes.Api_HostAddress}}/weatherforecast/
+### Health
+GET {{DudaPelasLentes.Api_HostAddress}}/health
+
+### Home pública (agregada)
+GET {{DudaPelasLentes.Api_HostAddress}}/api/public/home
 Accept: application/json
 
-###
+### Portfólio público
+GET {{DudaPelasLentes.Api_HostAddress}}/api/public/portfolio
+Accept: application/json
+
+### Login admin
+POST {{DudaPelasLentes.Api_HostAddress}}/api/admin/auth/login
+Content-Type: application/json
+
+{
+  "email": "duda@example.com",
+  "senha": "trocar-em-user-secrets"
+}

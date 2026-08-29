@@ -1,0 +1,66 @@
+/* ============================================================
+   Design tokens — Duda Pelas Lentes
+   Paleta editorial quente extraída da referência visual da Home.
+   ============================================================ */
+:root {
+  /* superfícies */
+  --color-background: #f6f1e9;
+  --color-cream: #faf6ef;
+  --color-beige: #e9dfd0;
+  --color-beige-deep: #ddcfba;
+  --color-white: #ffffff;
+
+  /* tons quentes / marca */
+  --color-brown: #8a6f5b;
+  --color-brown-deep: #5f4a3a;
+  --color-charcoal: #2b2622;
+  --color-charcoal-soft: #37312b;
+
+  /* dourado / champagne */
+  --color-gold: #c6a878;
+  --color-gold-soft: #d9c3a1;
+
+  /* texto */
+  --color-text: #4a423b;
+  --color-text-soft: #6f655b;
+  --color-text-invert: #f4ede2;
+  --color-heading: #3a322c;
+
+  /* linhas */
+  --color-border: #e0d5c4;
+  --color-border-dark: rgba(244, 237, 226, 0.18);
+
+  /* tipografia */
+  --font-serif: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Jost', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-script: 'Parisienne', 'Cormorant Garamond', cursive;
+
+  /* escala de espaçamento */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* raio e sombra */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 18px 40px -24px rgba(58, 44, 33, 0.45);
+  --shadow-card: 0 24px 60px -30px rgba(58, 44, 33, 0.55);
+
+  /* layout */
+  --container-max: 1220px;
+  --container-pad: clamp(1.25rem, 5vw, 4rem);
+  --header-height: 84px;
+
+  /* interação */
+  --transition: 220ms ease;
+  --letter-wide: 0.22em;
+}

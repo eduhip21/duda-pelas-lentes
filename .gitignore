@@ -5,6 +5,30 @@
 
 # dotenv files
 .env
+.env.local
+.env.*.local
+!.env.example
+
+# Duda Pelas Lentes — uploads locais (NÃO versionar).
+# Obs.: use um nome que NÃO colida com a pasta de código "Storage/"
+# (o git no Windows é case-insensitive).
+/DudaPelasLentes.Api/storage-uploads/
+storage-uploads/
+secrets.json
+*.secrets.json
+*.pem
+*.key
+
+# Bancos locais / dumps
+*.sql.bak
+*.dump
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.vite/
 
 # User-specific files
 *.rsuser

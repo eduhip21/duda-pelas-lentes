@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Sitemap será adicionado quando o domínio estiver definido.

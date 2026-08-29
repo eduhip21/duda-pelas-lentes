@@ -1,0 +1,6 @@
+@DudaPelasLentes.Api_HostAddress = http://localhost:5073
+
+GET {{DudaPelasLentes.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

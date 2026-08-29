@@ -148,7 +148,7 @@ conectar** ao banco; se não conseguir, ela sobe mesmo assim e apenas registra u
 - Metadados EXIF/GPS/XMP/IPTC são removidos no processamento.
 - Cada imagem gera 4 variantes: `original`, `large`, `medium`, `thumb`
   (dimensões e qualidade em `appsettings.json → Images`).
-- Armazenamento local em `DudaPelasLentes.Api/storage/uploads/` (**não versionado**),
+- Armazenamento local em `DudaPelasLentes.Api/storage-uploads/` (**não versionado**),
   servido em `/media/...`. A abstração `IFileStorage` permite trocar por
   Cloudflare R2 / S3 / Azure Blob futuramente sem mudar os controllers.
 

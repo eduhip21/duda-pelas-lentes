@@ -9,10 +9,11 @@
 .env.*.local
 !.env.example
 
-# Duda Pelas Lentes — arquivos que NUNCA devem ser versionados
-storage/uploads/
-**/storage/uploads/
-DudaPelasLentes.Api/storage/
+# Duda Pelas Lentes — uploads locais (NÃO versionar).
+# Obs.: use um nome que NÃO colida com a pasta de código "Storage/"
+# (o git no Windows é case-insensitive).
+/DudaPelasLentes.Api/storage-uploads/
+storage-uploads/
 secrets.json
 *.secrets.json
 *.pem

@@ -27,8 +27,12 @@ public sealed class StorageOptions
     /// <summary>Provider ativo: "Local" (futuramente "R2", "S3", "AzureBlob").</summary>
     public string Provider { get; set; } = "Local";
 
-    /// <summary>Diretório raiz do storage local (relativo ao ContentRoot quando não absoluto).</summary>
-    public string LocalRootPath { get; set; } = "storage/uploads";
+    /// <summary>
+    /// Diretório raiz do storage local (relativo ao ContentRoot quando não absoluto).
+    /// Nome propositalmente distinto da pasta de código "Storage/" para não colidir
+    /// no git em sistemas de arquivos case-insensitive (Windows).
+    /// </summary>
+    public string LocalRootPath { get; set; } = "storage-uploads";
 
     /// <summary>Caminho público sob o qual os arquivos são servidos.</summary>
     public string PublicBasePath { get; set; } = "/media";

@@ -97,9 +97,12 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=127.0.0.1;Po
 # Chave de assinatura do JWT — use uma string longa e aleatória (>= 32 caracteres)
 dotnet user-secrets set "Jwt:Key" "<chave-aleatoria-longa>"
 
-# Primeiro administrador (criado só em Development, só se não houver nenhum admin)
-dotnet user-secrets set "BootstrapAdmin:Email" "<email-da-duda>"
+# Primeiro usuário (criado só em Development, só se não houver nenhum usuário).
+# É criado como Master (acesso total + gestão de usuários).
+dotnet user-secrets set "BootstrapAdmin:Email" "<seu-email-master>"
 dotnet user-secrets set "BootstrapAdmin:Password" "<senha-forte-temporaria>"
+# Opcional — o padrão já é Master:
+# dotnet user-secrets set "BootstrapAdmin:Role" "Master"
 ```
 
 Para gerar uma chave JWT aleatória rapidamente:
@@ -111,13 +114,31 @@ Para gerar uma chave JWT aleatória rapidamente:
 openssl rand -base64 48
 ```
 
-### Admin bootstrap
+### Perfis: Master e Admin
 
-Na primeira execução em Development, se **não existir nenhum administrador** e
+| Capacidade                                   | Master | Admin |
+|----------------------------------------------|:------:|:-----:|
+| Administrar todo o conteúdo do site          |   ✅   |  ✅   |
+| Alterar a própria senha                      |   ✅   |  ✅   |
+| Acessar *Usuários* (gestão de administradores)|   ✅   |  ❌   |
+| Criar / editar / ativar-desativar Admin      |   ✅   |  ❌   |
+| Redefinir senha de Admin                     |   ✅   |  ❌   |
+
+A proteção é feita no backend por policy: `Admin` (Master **ou** Admin) nos endpoints
+de conteúdo e `Master` nos endpoints `/api/admin/usuarios/*`. Sem token → 401;
+Admin em rota de Master → 403. Esconder itens no frontend é apenas cosmético.
+
+### Bootstrap do primeiro Master
+
+Na primeira execução em Development, se **não existir nenhum usuário** e
 `BootstrapAdmin:Email` + `BootstrapAdmin:Password` estiverem configurados, o sistema
-cria o acesso da Duda automaticamente. A senha **nunca** é logada. Depois do primeiro
-login, a Duda pode trocar a senha em *Configurações → alterar senha* (endpoint
-`POST /api/admin/auth/alterar-senha`).
+cria o acesso automaticamente **como Master**. A senha **nunca** é logada. O Master
+troca a própria senha pelo endpoint `POST /api/admin/auth/alterar-senha` e cria o
+usuário Admin da Duda pela tela *Usuários → Novo Admin*.
+
+Bases já existentes: a migration `AddUsuarioAdminRole` promove o usuário mais antigo
+a Master e, na inicialização, o sistema garante que sempre exista ao menos um Master
+ativo (promovendo o usuário de bootstrap, ou o mais antigo, se necessário).
 
 ---
 
@@ -225,7 +246,10 @@ Não há passo de deploy.
 
 - Nenhum segredo no Git (JWT, connection string e senhas ficam em User Secrets).
 - Senhas com `PasswordHasher` do ASP.NET Core (PBKDF2).
-- Autorização por policy `Admin` em todos os endpoints administrativos.
+- Autorização por policy: `Admin` (Master ou Admin) no conteúdo; `Master` na gestão
+  de usuários. Sem token → 401; perfil insuficiente → 403.
+- A role vai no JWT (claim `role`); o site público nunca expõe quem é Master, e-mails
+  administrativos, lista de admins, tokens ou endpoints internos.
 - CORS restrito às origens configuradas (`Cors:AllowedOrigins`); credenciais nunca
   combinadas com `AllowAnyOrigin`.
 - Rate limiting em login, contato e uploads.

@@ -28,6 +28,8 @@ public class DudaPelasLentesDbContext(DbContextOptions<DudaPelasLentesDbContext>
             e.Property(x => x.Nome).HasMaxLength(120).IsRequired();
             e.Property(x => x.Email).HasMaxLength(200).IsRequired();
             e.Property(x => x.SenhaHash).HasMaxLength(400).IsRequired();
+            e.Property(x => x.Role).HasConversion<string>().HasMaxLength(20).IsRequired();
+            e.HasIndex(x => x.Role);
         });
 
         b.Entity<CategoriaPortfolio>(e =>

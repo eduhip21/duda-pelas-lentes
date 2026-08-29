@@ -13,13 +13,41 @@ public sealed record LoginRequestDto
     public string Senha { get; init; } = string.Empty;
 }
 
-public sealed record LoginResponseDto(string Token, DateTimeOffset ExpiraEm, string Nome, string Email);
+public sealed record LoginResponseDto(
+    Guid Id, string Token, DateTimeOffset ExpiraEm, string Nome, string Email, string Role);
 
-public sealed record UsuarioAdminDto(Guid Id, string Nome, string Email, bool Ativo, DateTimeOffset? UltimoLoginEm);
+public sealed record UsuarioAdminDto(
+    Guid Id, string Nome, string Email, string Role, bool Ativo,
+    DateTimeOffset? UltimoLoginEm, DateTimeOffset CriadoEm);
 
 public sealed record AlterarSenhaDto
 {
     [Required] public string SenhaAtual { get; init; } = string.Empty;
+    [Required, MinLength(8), MaxLength(200)] public string NovaSenha { get; init; } = string.Empty;
+}
+
+// ---------- Gestão de usuários (somente Master) ----------
+
+public sealed record UsuarioCriarDto
+{
+    [Required, MaxLength(120)] public string Nome { get; init; } = string.Empty;
+    [Required, EmailAddress, MaxLength(200)] public string Email { get; init; } = string.Empty;
+    [Required, MinLength(8), MaxLength(200)] public string Senha { get; init; } = string.Empty;
+}
+
+public sealed record UsuarioEditarDto
+{
+    [Required, MaxLength(120)] public string Nome { get; init; } = string.Empty;
+    [Required, EmailAddress, MaxLength(200)] public string Email { get; init; } = string.Empty;
+}
+
+public sealed record UsuarioStatusDto
+{
+    public bool Ativo { get; init; }
+}
+
+public sealed record RedefinirSenhaDto
+{
     [Required, MinLength(8), MaxLength(200)] public string NovaSenha { get; init; } = string.Empty;
 }
 

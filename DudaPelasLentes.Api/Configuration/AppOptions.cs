@@ -1,3 +1,5 @@
+using DudaPelasLentes.Api.Entities;
+
 namespace DudaPelasLentes.Api.Configuration;
 
 /// <summary>Configuração do JWT. Valores reais vêm de User Secrets / variáveis de ambiente.</summary>
@@ -68,6 +70,14 @@ public sealed class BootstrapAdminOptions
     public string? Password { get; set; }
     public string Nome { get; set; } = "Duda";
 
+    /// <summary>Perfil do usuário de bootstrap. Padrão: Master (acesso total).</summary>
+    public string Role { get; set; } = nameof(UsuarioAdminRole.Master);
+
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Password);
+
+    public UsuarioAdminRole ResolvedRole =>
+        Enum.TryParse<UsuarioAdminRole>(Role, ignoreCase: true, out var r)
+            ? r
+            : UsuarioAdminRole.Master;
 }

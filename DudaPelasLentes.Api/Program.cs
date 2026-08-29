@@ -66,8 +66,11 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
         };
     });
 
+// "Admin": administração de conteúdo — Master e Admin.
+// "Master": gestão de usuários — somente Master.
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    .AddPolicy("Admin", policy => policy.RequireRole("Admin", "Master"))
+    .AddPolicy("Master", policy => policy.RequireRole("Master"));
 
 // ---------- CORS ----------
 var corsOptions = builder.Configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>() ?? new CorsOptions();
@@ -79,21 +82,26 @@ builder.Services.AddCors(options => options.AddPolicy(CorsPolicy, policy => poli
     .WithExposedHeaders("Content-Disposition")));
 
 // ---------- Rate limiting ----------
+// "RateLimiting:Enabled" = false desliga os limites (usado nos testes de integração),
+// mantendo o middleware ativo para que os atributos [EnableRateLimiting] continuem válidos.
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    options.AddPolicy("login", ctx => RateLimitPartition.GetFixedWindowLimiter(
-        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 8, Window = TimeSpan.FromMinutes(5) }));
+    RateLimitPartition<string> Fixed(HttpContext ctx, int permitLimit, TimeSpan window)
+    {
+        var key = ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var enabled = ctx.RequestServices.GetRequiredService<IConfiguration>()
+            .GetValue("RateLimiting:Enabled", true);
+        return enabled
+            ? RateLimitPartition.GetFixedWindowLimiter(key,
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = permitLimit, Window = window })
+            : RateLimitPartition.GetNoLimiter(key);
+    }
 
-    options.AddPolicy("contato", ctx => RateLimitPartition.GetFixedWindowLimiter(
-        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(10) }));
-
-    options.AddPolicy("upload", ctx => RateLimitPartition.GetFixedWindowLimiter(
-        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1) }));
+    options.AddPolicy("login", ctx => Fixed(ctx, 8, TimeSpan.FromMinutes(5)));
+    options.AddPolicy("contato", ctx => Fixed(ctx, 5, TimeSpan.FromMinutes(10)));
+    options.AddPolicy("upload", ctx => Fixed(ctx, 60, TimeSpan.FromMinutes(1)));
 });
 
 // ---------- MVC / OpenAPI ----------

@@ -35,6 +35,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["BootstrapAdmin:Email"] = AdminEmail,
                 ["BootstrapAdmin:Password"] = AdminPassword,
                 ["Images:MaxUploadBytes"] = "2000000",
+                ["RateLimiting:Enabled"] = "false",
             });
         });
 

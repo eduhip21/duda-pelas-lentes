@@ -54,6 +54,7 @@ public sealed class DbInitializer(
         await EnsureSingletonsAsync(ct);
         await SeedCategoriasAsync(ct);
         await EnsureBootstrapAdminAsync(ct);
+        await EnsureAtivoMasterAsync(ct);
     }
 
     private async Task EnsureSingletonsAsync(CancellationToken ct)
@@ -112,10 +113,47 @@ public sealed class DbInitializer(
             Nome = opts.Nome,
             Email = opts.Email!.Trim().ToLowerInvariant(),
             SenhaHash = hasher.Hash(opts.Password!),
+            Role = opts.ResolvedRole,
             Ativo = true
         });
 
         await db.SaveChangesAsync(ct);
-        logger.LogInformation("Administrador de bootstrap criado para {Email}.", opts.Email);
+        logger.LogInformation(
+            "Usuário de bootstrap criado para {Email} com perfil {Role}.", opts.Email, opts.ResolvedRole);
+    }
+
+    /// <summary>
+    /// Garante que o sistema nunca fique sem nenhum Master ativo (ex.: base pré-existente
+    /// migrada ou Master desativado por engano no banco). Promove o usuário de bootstrap
+    /// quando configurado; caso contrário, apenas registra um aviso.
+    /// </summary>
+    private async Task EnsureAtivoMasterAsync(CancellationToken ct)
+    {
+        if (!await db.UsuariosAdmin.AnyAsync(ct))
+            return;
+
+        if (await db.UsuariosAdmin.AnyAsync(u => u.Ativo && u.Role == UsuarioAdminRole.Master, ct))
+            return;
+
+        var opts = bootstrapOptions.Value;
+        UsuarioAdmin? alvo = null;
+
+        if (opts.IsConfigured)
+        {
+            var email = opts.Email!.Trim().ToLowerInvariant();
+            alvo = await db.UsuariosAdmin.FirstOrDefaultAsync(u => u.Email == email, ct);
+        }
+
+        // Sem bootstrap configurado: promove o usuário mais antigo, preservando o acesso.
+        alvo ??= await db.UsuariosAdmin.OrderBy(u => u.CriadoEm).FirstOrDefaultAsync(ct);
+
+        if (alvo is null)
+            return;
+
+        alvo.Role = UsuarioAdminRole.Master;
+        alvo.Ativo = true;
+        await db.SaveChangesAsync(ct);
+        logger.LogWarning(
+            "Nenhum Master ativo encontrado. Usuário {Email} promovido a Master.", alvo.Email);
     }
 }

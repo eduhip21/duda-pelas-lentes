@@ -14,12 +14,15 @@ const MENU = [
   { to: 'instagram', label: 'Instagram' },
   { to: 'contatos', label: 'Contatos' },
   { to: 'configuracoes', label: 'Configurações' },
+  // Gestão de usuários: exclusiva do Master.
+  { to: 'usuarios', label: 'Usuários', master: true },
 ]
 
 export default function AdminLayout() {
-  const { user, logout } = useAuth()
+  const { user, isMaster, logout } = useAuth()
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const menu = MENU.filter((m) => !m.master || isMaster)
 
   return (
     <div className="adm-shell">
@@ -39,7 +42,7 @@ export default function AdminLayout() {
         </div>
         <nav>
           <ul>
-            {MENU.map((m) => (
+            {menu.map((m) => (
               <li key={m.to}>
                 <NavLink to={m.to}>{m.label}</NavLink>
               </li>
@@ -55,7 +58,7 @@ export default function AdminLayout() {
       <div className="adm-main">
         <header className="adm-topbar">
           <span className="adm-topbar__crumb">
-            {MENU.find((m) => location.pathname.includes(`/${m.to}`))?.label ?? 'Painel'}
+            {menu.find((m) => location.pathname.includes(`/${m.to}`))?.label ?? 'Painel'}
           </span>
           <span className="adm-topbar__user">{user?.nome || user?.email}</span>
         </header>

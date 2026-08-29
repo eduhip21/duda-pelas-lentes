@@ -1,6 +1,13 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+// A API .NET escuta em http://localhost:5073 (ver Properties/launchSettings.json).
+// O proxy abaixo encaminha /api e /media para lá, evitando CORS/URL no front.
+const apiProxy = {
+  '/api': { target: 'http://localhost:5073', changeOrigin: true },
+  '/media': { target: 'http://localhost:5073', changeOrigin: true },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -8,11 +15,13 @@ export default defineConfig({
   esbuild: { jsx: 'automatic', jsxImportSource: 'react' },
   server: {
     port: 5173,
-    proxy: {
-      // Proxy da API em desenvolvimento — evita configurar CORS/URL no front.
-      '/api': { target: 'http://localhost:5073', changeOrigin: true },
-      '/media': { target: 'http://localhost:5073', changeOrigin: true },
-    },
+    proxy: apiProxy,
+  },
+  // `vite preview` não herda `server.proxy`; replica aqui para o build local também
+  // conseguir falar com a API (senão /api/... cai no fallback SPA e retorna 404).
+  preview: {
+    port: 4173,
+    proxy: apiProxy,
   },
   test: {
     environment: 'jsdom',

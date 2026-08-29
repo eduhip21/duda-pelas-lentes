@@ -55,3 +55,23 @@ describe('Header — menu mobile', () => {
     expect(screen.getByRole('button', { name: /fechar menu/i })).toBeInTheDocument()
   })
 })
+
+describe('Header — acesso ao painel', () => {
+  it('mostra "Entrar" (discreto) apontando para /admin/login', () => {
+    renderApp(<Header />, { route: '/' })
+    const entrar = screen.getByRole('link', { name: 'Entrar' })
+    expect(entrar).toHaveAttribute('href', '/admin/login')
+  })
+
+  it('o menu mobile também contém "Entrar"', async () => {
+    const user = userEvent.setup()
+    renderApp(<Header />, { route: '/' })
+    // Fechado: só o link do cabeçalho desktop está acessível.
+    expect(screen.getAllByRole('link', { name: 'Entrar' })).toHaveLength(1)
+    await user.click(screen.getByRole('button', { name: /abrir menu/i }))
+    // Aberto: link do desktop + link dentro do hambúrguer.
+    const entrarLinks = screen.getAllByRole('link', { name: 'Entrar' })
+    expect(entrarLinks).toHaveLength(2)
+    entrarLinks.forEach((l) => expect(l).toHaveAttribute('href', '/admin/login'))
+  })
+})

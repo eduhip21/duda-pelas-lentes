@@ -702,3 +702,126 @@
     grid-template-columns: 1fr;
   }
 }
+/* ============================================================
+   CORREÇÃO — BOTÃO PRINCIPAL DO PAINEL ADMINISTRATIVO
+   Melhora contraste e visibilidade do botão Entrar/Salvar.
+   ============================================================ */
+
+.adm-btn--primary {
+  background: #6b4f3a;
+  border: 1px solid #6b4f3a;
+  color: #ffffff;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 4px 12px rgba(58, 44, 33, 0.18);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.adm-btn--primary:hover:not(:disabled) {
+  background: #4f392b;
+  border-color: #4f392b;
+  color: #ffffff;
+
+  box-shadow:
+    0 6px 16px rgba(58, 44, 33, 0.25);
+
+  transform: translateY(-1px);
+}
+
+.adm-btn--primary:focus-visible {
+  outline: 3px solid rgba(138, 111, 91, 0.35);
+  outline-offset: 3px;
+}
+
+.adm-btn--primary:active:not(:disabled) {
+  background: #3f2d22;
+
+  transform: translateY(0);
+}
+
+.adm-btn--primary:disabled {
+  background: #9b8a7d;
+  border-color: #9b8a7d;
+  color: #ffffff;
+
+  opacity: 0.7;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* Botão Entrar ocupa toda a largura e ganha mais destaque */
+.adm-login .adm-btn--primary {
+  min-height: 48px;
+
+  margin-top: 0.4rem;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  background: #6b4f3a;
+  border-color: #6b4f3a;
+  color: #ffffff;
+}
+
+.adm-login .adm-btn--primary:hover:not(:disabled) {
+  background: #4f392b;
+  border-color: #4f392b;
+  color: #ffffff;
+}
+
+/* ============================================================
+   Tabela de usuários (gestão — Master)
+   ============================================================ */
+.adm-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--radius-md);
+  background: var(--adm-panel);
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.adm-table th,
+.adm-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.adm-table thead th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--adm-muted);
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-table tbody tr + tr td {
+  border-top: 1px solid var(--adm-line);
+}
+
+.adm-table__actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

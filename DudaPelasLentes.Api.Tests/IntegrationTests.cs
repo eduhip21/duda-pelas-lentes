@@ -9,17 +9,34 @@ public class IntegrationTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     private readonly ApiFactory _factory = factory;
 
-    private async Task<string> LoginAsync()
+    private async Task<string> LoginAsync(string? email = null, string? senha = null)
     {
         var client = _factory.CreateClient();
         var res = await client.PostAsJsonAsync("/api/admin/auth/login", new
         {
-            email = ApiFactory.AdminEmail,
-            senha = ApiFactory.AdminPassword,
+            email = email ?? ApiFactory.AdminEmail,
+            senha = senha ?? ApiFactory.AdminPassword,
         });
         res.EnsureSuccessStatusCode();
         var body = await res.Content.ReadFromJsonAsync<JsonElement>();
         return body.GetProperty("token").GetString()!;
+    }
+
+    /// <summary>Autentica como Master (bootstrap) e cria um Admin, devolvendo o token do Admin.</summary>
+    private async Task<string> CriarELogarAdminAsync(string email, string senha)
+    {
+        var master = _factory.CreateClient();
+        master.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await LoginAsync());
+
+        var criar = await master.PostAsJsonAsync("/api/admin/usuarios", new
+        {
+            nome = "Duda Fotógrafa",
+            email,
+            senha,
+        });
+        criar.EnsureSuccessStatusCode();
+
+        return await LoginAsync(email, senha);
     }
 
     // ---------- Auth ----------
@@ -60,6 +77,109 @@ public class IntegrationTests(ApiFactory factory) : IClassFixture<ApiFactory>
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await LoginAsync());
         var res = await client.GetAsync("/api/admin/dashboard");
         res.EnsureSuccessStatusCode();
+    }
+
+    // ---------- Perfis Master / Admin ----------
+
+    [Fact]
+    public async Task Bootstrap_efetua_login_como_Master()
+    {
+        var client = _factory.CreateClient();
+        var res = await client.PostAsJsonAsync("/api/admin/auth/login", new
+        {
+            email = ApiFactory.AdminEmail,
+            senha = ApiFactory.AdminPassword,
+        });
+        res.EnsureSuccessStatusCode();
+        var body = await res.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Master", body.GetProperty("role").GetString());
+    }
+
+    [Fact]
+    public async Task Admin_criado_pelo_Master_efetua_login()
+    {
+        var token = await CriarELogarAdminAsync("admin.login@dudapelaslentes.dev", "SenhaAdmin#2026");
+        Assert.False(string.IsNullOrWhiteSpace(token));
+
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var me = await client.GetFromJsonAsync<JsonElement>("/api/admin/auth/me");
+        Assert.Equal("Admin", me.GetProperty("role").GetString());
+    }
+
+    [Fact]
+    public async Task Master_acessa_gestao_de_usuarios()
+    {
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await LoginAsync());
+        var res = await client.GetAsync("/api/admin/usuarios");
+        res.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task Admin_acessa_conteudo_administrativo()
+    {
+        var token = await CriarELogarAdminAsync("admin.conteudo@dudapelaslentes.dev", "SenhaAdmin#2026");
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/admin/dashboard")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/admin/categorias")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/admin/depoimentos")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Admin_recebe_403_na_gestao_de_usuarios()
+    {
+        var token = await CriarELogarAdminAsync("admin.403@dudapelaslentes.dev", "SenhaAdmin#2026");
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/admin/usuarios")).StatusCode);
+        var criar = await client.PostAsJsonAsync("/api/admin/usuarios", new
+        {
+            nome = "X", email = "x@x.dev", senha = "SenhaAlgo#2026",
+        });
+        Assert.Equal(HttpStatusCode.Forbidden, criar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Visitante_recebe_401_na_gestao_de_usuarios()
+    {
+        var client = _factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/admin/usuarios")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Master_nao_desativa_o_proprio_acesso()
+    {
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await LoginAsync());
+
+        var usuarios = await client.GetFromJsonAsync<List<JsonElement>>("/api/admin/usuarios");
+        var master = usuarios!.First(u => u.GetProperty("role").GetString() == "Master");
+        var id = master.GetProperty("id").GetString();
+
+        var res = await client.PatchAsJsonAsync($"/api/admin/usuarios/{id}/status", new { ativo = false });
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task Master_redefine_senha_de_Admin()
+    {
+        await CriarELogarAdminAsync("admin.reset@dudapelaslentes.dev", "SenhaAdmin#2026");
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await LoginAsync());
+
+        var usuarios = await client.GetFromJsonAsync<List<JsonElement>>("/api/admin/usuarios");
+        var alvo = usuarios!.First(u => u.GetProperty("email").GetString() == "admin.reset@dudapelaslentes.dev");
+        var id = alvo.GetProperty("id").GetString();
+
+        var res = await client.PostAsJsonAsync($"/api/admin/usuarios/{id}/redefinir-senha", new { novaSenha = "NovaSenha#2026" });
+        Assert.Equal(HttpStatusCode.NoContent, res.StatusCode);
+
+        var relogin = await LoginAsync("admin.reset@dudapelaslentes.dev", "NovaSenha#2026");
+        Assert.False(string.IsNullOrWhiteSpace(relogin));
     }
 
     // ---------- Endpoints públicos / DTO público ----------

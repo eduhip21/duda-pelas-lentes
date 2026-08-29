@@ -38,7 +38,7 @@ public sealed class AuthController(
         await db.SaveChangesAsync(ct);
 
         var (token, expiresAt) = jwt.CreateToken(user);
-        return Ok(new LoginResponseDto(token, expiresAt, user.Nome, user.Email));
+        return Ok(new LoginResponseDto(user.Id, token, expiresAt, user.Nome, user.Email, user.Role.ToString()));
     }
 
     [HttpGet("me")]
@@ -49,7 +49,9 @@ public sealed class AuthController(
         var user = await db.UsuariosAdmin.FindAsync([id], ct);
         return user is null
             ? Unauthorized()
-            : Ok(new UsuarioAdminDto(user.Id, user.Nome, user.Email, user.Ativo, user.UltimoLoginEm));
+            : Ok(new UsuarioAdminDto(
+                user.Id, user.Nome, user.Email, user.Role.ToString(),
+                user.Ativo, user.UltimoLoginEm, user.CriadoEm));
     }
 
     [HttpPost("alterar-senha")]

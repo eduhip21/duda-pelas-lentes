@@ -17,11 +17,20 @@ const Servicos = lazy(() => import('./pages/Servicos.jsx'))
 const Depoimentos = lazy(() => import('./pages/Depoimentos.jsx'))
 const Instagram = lazy(() => import('./pages/Instagram.jsx'))
 const Contatos = lazy(() => import('./pages/Contatos.jsx'))
+const Usuarios = lazy(() => import('./pages/Usuarios.jsx'))
 
 function RequireAuth({ children }) {
   const { user, ready } = useAuth()
   if (!ready) return <div className="adm-boot"><span className="inline-spinner" /></div>
   if (!user) return <Navigate to="/admin/login" replace />
+  return children
+}
+
+/** Rotas exclusivas do Master. Admin autenticado é redirecionado ao dashboard. */
+function RequireMaster({ children }) {
+  const { isMaster, ready } = useAuth()
+  if (!ready) return <div className="adm-boot"><span className="inline-spinner" /></div>
+  if (!isMaster) return <Navigate to="/admin/dashboard" replace />
   return children
 }
 
@@ -52,6 +61,7 @@ export default function AdminApp() {
               <Route path="instagram" element={<Instagram />} />
               <Route path="contatos" element={<Contatos />} />
               <Route path="configuracoes" element={<Configuracoes />} />
+              <Route path="usuarios" element={<RequireMaster><Usuarios /></RequireMaster>} />
             </Route>
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Routes>

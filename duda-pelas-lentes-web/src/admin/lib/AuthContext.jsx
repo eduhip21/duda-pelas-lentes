@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
       body: { email, senha },
     })
     setToken(res.token)
-    setUser({ nome: res.nome, email: res.email })
+    setUser({ id: res.id, nome: res.nome, email: res.email, role: res.role })
     return res
   }, [])
 
@@ -35,7 +35,12 @@ export function AuthProvider({ children }) {
     setUser(null)
   }, [])
 
-  const value = useMemo(() => ({ user, ready, login, logout }), [user, ready, login, logout])
+  const isMaster = user?.role === 'Master'
+
+  const value = useMemo(
+    () => ({ user, ready, isMaster, login, logout }),
+    [user, ready, isMaster, login, logout],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

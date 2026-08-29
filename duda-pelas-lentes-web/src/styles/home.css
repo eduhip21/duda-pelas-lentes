@@ -28,28 +28,34 @@
     linear-gradient(90deg, rgba(28, 20, 13, 0.72) 0%, rgba(28, 20, 13, 0.34) 42%, rgba(28, 20, 13, 0.05) 70%),
     linear-gradient(0deg, rgba(28, 20, 13, 0.4), rgba(28, 20, 13, 0));
 }
+/* Composição única, centralizada na horizontal e equilibrada na vertical
+   (padding simétrico: não cola no Header nem na base do Hero). */
 .hero__inner {
   position: relative;
-  padding-top: var(--header-height);
+  padding-block: var(--header-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .hero__title {
   margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.7rem;
+  align-items: center;
+  gap: 0.6rem;
 }
-/* Marca principal: presença parecida com o antigo título, porém mais refinada.
-   Proporção preservada (width:auto), object-fit:contain, sem overflow horizontal. */
+/* Marca principal: ~600–700px em desktop, proporcional ao espaço disponível.
+   Proporção preservada (height:auto), object-fit:contain, sem overflow horizontal. */
 .hero__logo {
   display: block;
-  width: clamp(15rem, 46vw, 37rem);
+  width: clamp(17rem, 52vw, 42rem); /* ~272px … 672px */
   max-width: 100%;
   height: auto;
   object-fit: contain;
 }
 .hero__logo-caption {
-  padding-left: 0.35rem;
+  padding-left: 0.5em; /* compensa o tracking à direita → centro óptico */
   font-family: var(--font-sans);
   font-size: clamp(0.62rem, 1.1vw, 0.82rem);
   font-weight: 500;
@@ -58,20 +64,22 @@
   color: rgba(244, 237, 226, 0.82);
 }
 .hero__subtitle {
-  margin-top: 1.8rem;
+  margin-top: clamp(1.5rem, 3.2vw, 2rem); /* 24–32px entre a logo e os textos */
   font-size: clamp(1rem, 1.5vw, 1.2rem);
-  line-height: 1.7;
+  line-height: 1.75;
   color: rgba(244, 237, 226, 0.9);
-  max-width: 32ch;
+  max-width: min(90vw, 44ch);
 }
 .hero__subtitle span {
   display: block;
 }
 .hero__actions {
-  margin-top: 2.4rem;
+  margin-top: clamp(2.25rem, 4vw, 2.75rem); /* 36–44px entre os textos e os botões */
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(0.9rem, 2vw, 1.25rem);
 }
 .hero__scroll {
   position: absolute;
@@ -386,10 +394,13 @@
     background-position: center;
   }
   .hero__logo {
-    width: min(78vw, 20rem);
+    width: min(80vw, 21rem);
   }
   .hero__logo-caption {
     letter-spacing: 0.38em;
+  }
+  .hero__actions {
+    width: 100%;
   }
   .hero__actions .btn {
     flex: 1 1 100%;
